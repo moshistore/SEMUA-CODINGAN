@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title><%= page_title %> - SIAKAD PRO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --bg-body: #f8fafc; --card-bg: #ffffff; --text-color: #0f172a; }
+        body.dark-mode { --bg-body: #0f172a; --card-bg: #1e293b; --text-color: #f8fafc; }
+        body { background-color: var(--bg-body); color: var(--text-color); transition: 0.3s; }
+        .sidebar { min-height: 100vh; background: #0f172a; color: white; }
+        .nav-link { color: #94a3b8; border-radius: 10px; padding: 10px 15px; margin-bottom: 5px; }
+        .nav-link:hover, .nav-link.active { color: white; background: #2563eb; }
+        .card-custom { background-color: var(--card-bg); border-radius: 16px; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- SIDEBAR NAVIGASI -->
+        <div class="col-lg-2 sidebar p-3 sticky-top" style="height: 100vh; overflow-y: auto;">
+            <div class="d-flex align-items-center mb-4">
+                <i class="fa-solid fa-graduation-cap text-warning fa-2x me-2"></i>
+                <h5 class="fw-bold mb-0 text-white">SIAKAD PRO</h5>
+            </div>
+            <hr class="border-secondary">
+            <ul class="nav flex-column">
+                <% if (session.role === 'admin') { %>
+                    <li class="nav-item"><a class="nav-link <%= page === 'admin_dashboard' ? 'active' : '' %>" href="/admin/dashboard"><i class="fa-solid fa-gauge me-2"></i> Dashboard Admin</a></li>
+                    <li class="nav-item"><a class="nav-link <%= page === 'admin_siswa' ? 'active' : '' %>" href="/admin/siswa"><i class="fa-solid fa-users me-2"></i> Data Siswa</a></li>
+                    <li class="nav-item"><a class="nav-link <%= page === 'admin_guru' ? 'active' : '' %>" href="/admin/guru"><i class="fa-solid fa-chalkboard-user me-2"></i> Data Guru</a></li>
+                    <li class="nav-item"><a class="nav-link <%= page === 'admin_mapel' ? 'active' : '' %>" href="/admin/mapel"><i class="fa-solid fa-book me-2"></i> Kelola Mapel</a></li>
+                    <li class="nav-item"><a class="nav-link <%= page === 'admin_rekap' ? 'active' : '' %>" href="/admin/rekap"><i class="fa-solid fa-file-invoice me-2"></i> Rekap Laporan</a></li>
+                <% } else { %>
+                    <li class="nav-item"><a class="nav-link <%= page === 'dashboard' ? 'active' : '' %>" href="/dashboard"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link <%= page === 'presensi' ? 'active' : '' %>" href="/presensi"><i class="fa-solid fa-fingerprint me-2"></i> Presensi Kehadiran</a></li>
+                    <li class="nav-item"><a class="nav-link <%= page === 'jadwal' ? 'active' : '' %>" href="/jadwal"><i class="fa-solid fa-calendar-week me-2"></i> Jadwal Pelajaran</a></li>
+                    <li class="nav-item"><a class="nav-link <%= page === 'tugas' ? 'active' : '' %>" href="/tugas"><i class="fa-solid fa-list-check me-2"></i> Tugas & PR</a></li>
+                    <li class="nav-item"><a class="nav-link <%= page === 'nilai' ? 'active' : '' %>" href="/nilai"><i class="fa-solid fa-award me-2"></i> Transkrip Nilai</a></li>
+                    <li class="nav-item"><a class="nav-link <%= page === 'materi' ? 'active' : '' %>" href="/materi"><i class="fa-solid fa-book-open me-2"></i> Materi & Modul</a></li>
+                    <li class="nav-item"><a class="nav-link <%= page === 'kartu' ? 'active' : '' %>" href="/kartu"><i class="fa-solid fa-id-card me-2"></i> Kartu Digital</a></li>
+                <% } %>
+                <li class="nav-item"><a class="nav-link <%= page === 'pengumuman' ? 'active' : '' %>" href="/pengumuman"><i class="fa-solid fa-bullhorn me-2"></i> Pengumuman</a></li>
+                <li class="nav-item"><a class="nav-link <%= page === 'profil' ? 'active' : '' %>" href="/profil"><i class="fa-solid fa-user me-2"></i> Profil Saya</a></li>
+            </ul>
+            <div class="mt-auto pt-4">
+                <button class="btn btn-outline-light w-100 rounded-pill mb-2 btn-sm" onclick="document.body.classList.toggle('dark-mode')"><i class="fa-solid fa-moon me-1"></i> Mode Gelap</button>
+                <a href="/logout" class="btn btn-danger w-100 rounded-pill btn-sm"><i class="fa-solid fa-power-off me-1"></i> Logout</a>
+            </div>
+        </div>
+
+        <!-- AREA KONTEN DINAMIS -->
+        <div class="col-lg-10 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-0"><%= page_title %></h3>
+                    <small class="text-muted">Portal Sistem Informasi Akademik Sekolah</small>
+                </div>
+                <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="fa-solid fa-user me-1"></i> <%= session.nama %> (<%= session.role.toUpperCase() %>)</span>
+            </div>
+
+            <% if (msg) { %>
+            <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+                <i class="fa-solid fa-check-circle me-1"></i> <%= msg %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+
+            <!-- RENDER DASHBOARD ADMIN -->
+            <% if (page === 'admin_dashboard') { %>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3"><div class="card card-custom p-3 bg-primary text-white"><h6>Total Siswa</h6><h2><%= dataSiswa.length %></h2></div></div>
+                    <div class="col-md-3"><div class="card card-custom p-3 bg-success text-white"><h6>Total Guru</h6><h2><%= dataGuru.length %></h2></div></div>
+                    <div class="col-md-3"><div class="card card-custom p-3 bg-warning text-white"><h6>Mata Pelajaran</h6><h2><%= dataMapel.length %></h2></div></div>
+                    <div class="col-md-3"><div class="card card-custom p-3 bg-danger text-white"><h6>Pengumuman</h6><h2><%= dataPengumuman.length %></h2></div></div>
+                </div>
+            <% } %>
+
+            <!-- RENDER KELOLA SISWA (ADMIN) -->
+            <% if (page === 'admin_siswa') { %>
+                <div class="card card-custom p-4 mb-4">
+                    <h5 class="fw-bold mb-3">Tambah Siswa Baru</h5>
+                    <form action="/admin/siswa/tambah" method="POST" class="row g-3">
+                        <div class="col-md-3"><input type="text" name="nisn" class="form-control" placeholder="NISN" required></div>
+                        <div class="col-md-3"><input type="text" name="nama" class="form-control" placeholder="Nama Lengkap" required></div>
+                        <div class="col-md-3"><input type="text" name="kelas" class="form-control" placeholder="Kelas (ex: XII-IPA-1)" required></div>
+                        <div class="col-md-3">
+                            <select name="jk" class="form-select"><option>Laki-laki</option><option>Perempuan</option></select>
+                        </div>
+                        <div class="col-12"><button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus me-1"></i> Simpan Siswa</button></div>
+                    </form>
+                </div>
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold mb-3">Daftar Data Siswa</h5>
+                    <table class="table table-hover align-middle">
+                        <thead><tr><th>ID</th><th>NISN</th><th>Nama Siswa</th><th>Kelas</th><th>Gender</th><th>Status</th><th>Aksi</th></tr></thead>
+                        <tbody>
+                            <% dataSiswa.forEach(s => { %>
+                            <tr>
+                                <td><%= s.id %></td><td><%= s.nisn %></td><td class="fw-bold"><%= s.nama %></td><td><%= s.kelas %></td><td><%= s.jk %></td>
+                                <td><span class="badge bg-success"><%= s.status %></span></td>
+                                <td><a href="/admin/siswa/hapus/<%= s.id %>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus data?')"><i class="fa-solid fa-trash"></i> Hapus</a></td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+
+            <!-- RENDER KELOLA GURU (ADMIN) -->
+            <% if (page === 'admin_guru') { %>
+                <div class="card card-custom p-4 mb-4">
+                    <h5 class="fw-bold mb-3">Tambah Guru Baru</h5>
+                    <form action="/admin/guru/tambah" method="POST" class="row g-3">
+                        <div class="col-md-4"><input type="text" name="nip" class="form-control" placeholder="NIP" required></div>
+                        <div class="col-md-4"><input type="text" name="nama" class="form-control" placeholder="Nama Guru" required></div>
+                        <div class="col-md-4"><input type="text" name="mapel" class="form-control" placeholder="Mata Pelajaran" required></div>
+                        <div class="col-12"><button type="submit" class="btn btn-success"><i class="fa-solid fa-plus me-1"></i> Simpan Guru</button></div>
+                    </form>
+                </div>
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold mb-3">Daftar Pengajar</h5>
+                    <table class="table table-hover align-middle">
+                        <thead><tr><th>NIP</th><th>Nama Guru</th><th>Mata Pelajaran</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <% dataGuru.forEach(g => { %>
+                            <tr><td><%= g.nip %></td><td class="fw-bold"><%= g.nama %></td><td><%= g.mapel %></td><td><span class="badge bg-primary"><%= g.status %></span></td></tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+
+            <!-- RENDER PRESENSI -->
+            <% if (page === 'presensi') { %>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card card-custom p-4">
+                            <h5 class="fw-bold mb-3">Form Presensi Harian</h5>
+                            <p>Status Presensi Hari Ini: <span class="badge bg-info"><%= statusPresensi.status %> (<%= statusPresensi.jam %>)</span></p>
+                            <form action="/presensi" method="POST">
+                                <div class="mb-3">
+                                    <select name="status" class="form-select">
+                                        <option value="Hadir">Hadir Tepat Waktu</option>
+                                        <option value="Sakit">Sakit</option>
+                                        <option value="Izin">Izin</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Kirim Kehadiran</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- RENDER JADWAL / MAPEL -->
+            <% if (page === 'jadwal' || page === 'admin_mapel') { %>
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold mb-3">Daftar Mata Pelajaran & Jadwal</h5>
+                    <table class="table table-hover">
+                        <thead><tr><th>Hari</th><th>Kode</th><th>Mata Pelajaran</th><th>Pengampu</th><th>Jam</th><th>Ruang</th></tr></thead>
+                        <tbody>
+                            <% dataMapel.forEach(m => { %>
+                            <tr>
+                                <td><span class="badge bg-secondary"><%= m.hari %></span></td>
+                                <td><code><%= m.kode %></code></td>
+                                <td class="fw-bold"><%= m.nama %></td>
+                                <td><%= m.guru %></td>
+                                <td><%= m.jam %></td>
+                                <td><%= m.ruang %></td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+
+            <!-- RENDER TUGAS -->
+            <% if (page === 'tugas') { %>
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold mb-3">Daftar Tugas & PR</h5>
+                    <table class="table table-hover align-middle">
+                        <thead><tr><th>Mata Pelajaran</th><th>Judul Tugas</th><th>Batas Waktu</th><th>Status</th><th>Aksi</th></tr></thead>
+                        <tbody>
+                            <% dataTugas.forEach(t => { %>
+                            <tr>
+                                <td class="fw-bold"><%= t.mapel %></td><td><%= t.judul %></td><td><%= t.dl %></td>
+                                <td><span class="badge <%= t.status === 'Selesai' ? 'bg-success' : 'bg-warning' %>"><%= t.status %></span></td>
+                                <td>
+                                    <% if (t.status !== 'Selesai') { %>
+                                    <form action="/tugas/upload" method="POST" style="display:inline;">
+                                        <input type="hidden" name="tugas_id" value="<%= t.id %>">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-upload"></i> Upload Tugas</button>
+                                    </form>
+                                    <% } else { %>
+                                    <span class="text-success small"><i class="fa-solid fa-circle-check"></i> Terkirim</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+
+            <!-- RENDER TRANSKRIP NILAI -->
+            <% if (page === 'nilai') { %>
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold mb-3">Transkrip Nilai Akademik</h5>
+                    <table class="table table-bordered">
+                        <thead class="table-light"><tr><th>Mata Pelajaran</th><th>Tugas</th><th>UTS</th><th>UAS</th><th>Nilai Akhir</th><th>Predikat</th></tr></thead>
+                        <tbody>
+                            <tr><td>Matematika Wajib</td><td>85</td><td>90</td><td>88</td><td class="fw-bold">87.6</td><td><span class="badge bg-success">A</span></td></tr>
+                            <tr><td>Fisika</td><td>80</td><td>85</td><td>82</td><td class="fw-bold">82.3</td><td><span class="badge bg-primary">B</span></td></tr>
+                            <tr><td>Kimia</td><td>90</td><td>88</td><td>92</td><td class="fw-bold">90.0</td><td><span class="badge bg-success">A</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+
+            <!-- RENDER PENGUMUMAN -->
+            <% if (page === 'pengumuman') { %>
+                <% if (session.role === 'admin') { %>
+                <div class="card card-custom p-4 mb-4">
+                    <h5 class="fw-bold mb-3">Buat Pengumuman Baru</h5>
+                    <form action="/pengumuman/tambah" method="POST">
+                        <div class="mb-3"><input type="text" name="judul" class="form-control" placeholder="Judul Pengumuman" required></div>
+                        <div class="mb-3"><textarea name="isi" class="form-control" rows="3" placeholder="Isi Pengumuman" required></textarea></div>
+                        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-bullhorn me-1"></i> Terbitkan Pengumuman</button>
+                    </form>
+                </div>
+                <% } %>
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold mb-3">Papan Pengumuman Sekolah</h5>
+                    <% dataPengumuman.forEach(p => { %>
+                    <div class="border-bottom mb-3 pb-2">
+                        <span class="badge bg-secondary mb-1"><%= p.tgl %></span>
+                        <h6 class="fw-bold text-primary mb-1"><%= p.judul %></h6>
+                        <p class="text-muted mb-0 small"><%= p.isi %></p>
+                    </div>
+                    <% }) %>
+                </div>
+            <% } %>
+
+            <!-- RENDER PROFIL -->
+            <% if (page === 'profil') { %>
+                <div class="card card-custom p-4" style="max-width: 500px;">
+                    <h5 class="fw-bold mb-3">Pengaturan Profil Saya</h5>
+                    <form action="/profil" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nama Lengkap</label>
+                            <input type="text" name="nama" class="form-control" value="<%= session.nama %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Peran Hak Akses</label>
+                            <input type="text" class="form-control" value="<%= session.role.toUpperCase() %>" readonly disabled>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Simpan Perubahan</button>
+                    </form>
+                </div>
+            <% } %>
+
+            <!-- RENDER KARTU -->
+            <% if (page === 'kartu') { %>
+                <div class="d-flex justify-content-center">
+                    <div class="card card-custom p-4 text-center text-white bg-dark" style="max-width: 380px; border-radius: 20px;">
+                        <i class="fa-solid fa-graduation-cap fa-3x text-warning mb-2"></i>
+                        <h4 class="fw-bold">KARTU PELAJAR DIGITAL</h4>
+                        <hr class="border-secondary">
+                        <h5 class="fw-bold mb-0 text-info"><%= session.nama %></h5>
+                        <p class="small text-muted mb-2">NISN: 0054829102</p>
+                        <span class="badge bg-success px-3 py-2 rounded-pill">Siswa Aktif SIAKAD</span>
+                    </div>
+                </div>
+            <% } %>
+
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
